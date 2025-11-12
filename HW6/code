@@ -1,1 +1,131 @@
+**main cpp**
+#include <QApplication>
+#include "widget.h"
+
+int main(int argc, char *argv[]) {
+    QApplication a(argc, argv);
+    Widget w;
+    w.show();
+    return a.exec();
+}
+
+**widget.cpp**
+#include "widget.h"
+#include <QLineEdit>
+#include <QPushButton>
+#include <QGridLayout>
+#include <QVBoxLayout>
+#include <QStringList>
+#include <cstdlib>
+
+static double parseExpr(const char **s);
+static void skip(const char **s){ while(**s==' ') ++(*s); }
+static double parseNum(const char **s){ char* e=nullptr; double v=std::strtod(*s,&e); *s=e; return v; }
+static double parseFactor(const char **s){
+    skip(s);
+    bool neg=false; if(**s=='+'){++(*s);} else if(**s=='-'){neg=true; ++(*s);}
+    double v=0;
+    if(**s=='('){ ++(*s); v=parseExpr(s); if(**s==')') ++(*s); }
+    else v=parseNum(s);
+    return neg? -v : v;
+}
+static double parseTerm(const char **s){
+    double v=parseFactor(s);
+    while(true){ skip(s);
+        if(**s=='*'){ ++(*s); v*=parseFactor(s); }
+        else if(**s=='/'){ ++(*s); v/=parseFactor(s); }
+        else break;
+    } return v;
+}
+static double parseExpr(const char **s){
+    double v=parseTerm(s);
+    while(true){ skip(s);
+        if(**s=='+'){ ++(*s); v+=parseTerm(s); }
+        else if(**s=='-'){ ++(*s); v-=parseTerm(s); }
+        else break;
+    } return v;
+}
+
+static double evalString(const QString &expr){
+    QByteArray ba = expr.toLatin1();
+    const char *p = ba.constData();
+    return parseExpr(&p);
+}
+
+#include <QDebug>
+
+Widget::Widget(QWidget *parent) : QWidget(parent) {
+    display = new QLineEdit;
+    display->setReadOnly(true);
+    display->setAlignment(Qt::AlignRight);
+    display->setStyleSheet("font-size:24px; padding:8px;");
+
+    auto *grid = new QGridLayout;
+    QStringList keys = {
+        "C","←","*","-",
+        "7","8","9","+",
+        "4","5","6","/",
+        "1","2","3","=",
+        "0","."
+    };
+
+    int i=0;
+    for(int r=0;r<5;++r){
+        for(int c=0;c<4;++c){
+            if(i>=keys.size()) break;
+            QString t = keys[i++];
+            auto *btn = new QPushButton(t);
+            btn->setMinimumSize(64,56);
+            btn->setStyleSheet("font-size:20px;");
+            if(t=="0"){ grid->addWidget(btn,4,0,1,2); }
+            else if(t=="."){ grid->addWidget(btn,4,2); }
+            else { grid->addWidget(btn,r,c); }
+            connect(btn,&QPushButton::clicked,this,[=]{ onButton(t); });
+        }
+    }
+
+    auto *mainLay = new QVBoxLayout;
+    mainLay->addWidget(display);
+    mainLay->addLayout(grid);
+    setLayout(mainLay);
+    setWindowTitle("Qt 計算機");
+    resize(320,420);
+}
+
+Widget::~Widget() {}
+
+void Widget::onButton(const QString &t){
+    if(t=="C"){ display->clear(); }
+    else if(t=="←"){ auto s=display->text(); if(!s.isEmpty()) s.chop(1); display->setText(s); }
+    else if(t=="="){
+        double v = evalString(display->text());
+        display->setText(QString::number(v));
+    }else{
+        display->setText(display->text()+t);
+    }
+}
+
+
+**.pro**
+
+QT       += core gui
+QT       += widgets
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+CONFIG += c++17
+
+# You can make your code fail to compile if it uses deprecated APIs.
+# In order to do so, uncomment the following line.
+#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+
+SOURCES += main.cpp widget.cpp
+HEADERS += widget.h
+
+# Default rules for deployment.
+qnx: target.path = /tmp/$${TARGET}/bin
+else: unix:!android: target.path = /opt/$${TARGET}/bin
+!isEmpty(target.path): INSTALLS += target
+
+
 
