@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Widget</class>
+ <widget class="QWidget" name="Widget">
+  <property name="windowTitle">
+   <string>行事曆 × Deadline 待辦系統</string>
+  </property>
+  <layout class="QHBoxLayout">
+
+   <item>
+    <widget class="QCalendarWidget" name="calendarWidget"/>
+   </item>
+
+   <item>
+    <layout class="QVBoxLayout">
+
+     <item>
+      <widget class="QLineEdit" name="lineEditSearch">
+       <property name="placeholderText">
+        <string>搜尋任務</string>
+       </property>
+      </widget>
+     </item>
+
+     <item>
+      <widget class="QTreeWidget" name="treeWidget"/>
+     </item>
+
+     <item>
+      <layout class="QHBoxLayout">
+       <item>
+        <widget class="QLineEdit" name="lineEdit"/>
+       </item>
+       <item>
+        <widget class="QTimeEdit" name="timeEdit"/>
+       </item>
+      </layout>
+     </item>
+
+     <item>
+      <layout class="QHBoxLayout">
+       <item>
+        <widget class="QComboBox" name="comboBoxCategory"/>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBoxPriority">
+         <property name="text">
+          <string>優先任務</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBoxDeadline">
+         <property name="text">
+          <string>期限任務</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spinBoxDays">
+         <property name="minimum"><number>1</number></property>
+         <property name="value"><number>1</number></property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+
+     <item>
+      <widget class="QPushButton" name="addButton">
+       <property name="text">
+        <string>新增</string>
+       </property>
+      </widget>
+     </item>
+
+     <item>
+      <widget class="QPushButton" name="deleteButton">
+       <property name="text">
+        <string>刪除選取</string>
+       </property>
+      </widget>
+     </item>
+
+    </layout>
+   </item>
+
+  </layout>
+ </widget>
+</ui>
